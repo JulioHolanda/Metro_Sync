@@ -63,10 +63,11 @@ int main(void)
                 // this car is associated to a thread
                 //
                 struct vagao_args vagao_struct;
-                int qtd_assentos = qtd_passageiros / (1+i);
+                int qtd_assentos = qtd_passageiros / (2+i);
 
                 vagao_struct.estacao = &station;
                 vagao_struct.assentos_livres = qtd_assentos; 
+                printf("qtd de assentos: %d\n",vagao_struct.assentos_livres);
 
                 pthread_t vagao;
                 int v = pthread_create(&vagao, NULL, &vagao_thread, &vagao_struct);
@@ -93,7 +94,7 @@ int main(void)
                 // call estacao_embarque function to let the car know that the passenger is on board
                 // ATTENTION: the car can not have more passengers than the number of free seats
                 //
-                for(int i = 0; i<passageiros_reap; i++){
+                for(int j = 0; j<passageiros_reap; j++){
                         estacao_embarque(&station);
                 }
 
