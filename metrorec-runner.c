@@ -96,6 +96,8 @@ int main(void)
                 for(int i = 0; i<passageiros_reap; i++){
                         estacao_embarque(&station);
                 }
+
+                pthread_join(vagao, NULL);
         
         }
 

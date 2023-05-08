@@ -1,7 +1,7 @@
 #include <pthread.h>
 
 struct estacao {
-    //int passageiros;
+    int passageiros;
     int vagas;
     pthread_mutex_t mutex;
     pthread_cond_t passageiros;
@@ -32,11 +32,13 @@ void estacao_preecher_vagao(struct estacao * estacao, int assentos) {
 void estacao_espera_pelo_vagao(struct estacao * estacao) {
 
     pthread_mutex_lock(&(estacao->mutex));
+    estacao->passageiros++;
     while(estacao->vagas == 0){        //sem vagas -> block
         pthread_cond_wait(&(estacao->passageiros),&(estacao->mutex));
     }
     estacao->vagas--; //tem vaga -> consome vaga
-    if(estacao->vagas == 0)
+    estacao->passageiros--;
+    if(estacao->vagas == 0 || estacao->passageiros == 0)
         pthread_cond_signal(&(estacao->aviso));  //segura aviso caso tenha começado antes
     pthread_mutex_unlock(&(estacao->mutex));
 
@@ -46,7 +48,7 @@ void estacao_espera_pelo_vagao(struct estacao * estacao) {
 void estacao_embarque(struct estacao * estacao) {
 
     pthread_mutex_lock(&(estacao->mutex));
-    if(estacao->vagas != 0)
+    while(estacao->vagas != 0 &&)
         pthread_cond_wait(&(estacao->aviso),&(estacao->mutex));
     pthread_cond_signal(&(estacao->vagao));  //avisa vagao q pode sair
     pthread_mutex_unlock(&(estacao->mutex));
