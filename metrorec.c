@@ -1,21 +1,24 @@
 #include <pthread.h>
 
 struct estacao {
-    int passageiros;
     int vagas;
+    int passageiros;
+    int passageiros_embarcados;
     pthread_mutex_t mutex;
     pthread_cond_t passageiros;
     pthread_cond_t vagao;
-    pthread_cond_t aviso;
+    //pthread_cond_t aviso;
 };
 
 void estacao_init(struct estacao *estacao) {
     
     estacao->vagas = 0;
+    estacao->passageiros = 0;
+    estacao->passageiros_embarcados = 0;
     pthread_mutex_init(&(estacao->mutex), NULL);
     pthread_cond_init(&(estacao->passageiros), NULL);   
     pthread_cond_init(&(estacao->vagao), NULL);
-    pthread_cond_init(&(estacao->aviso), NULL);
+    //pthread_cond_init(&(estacao->aviso), NULL);
 }
 
 void estacao_preecher_vagao(struct estacao * estacao, int assentos) {
@@ -38,8 +41,8 @@ void estacao_espera_pelo_vagao(struct estacao * estacao) {
     }
     estacao->vagas--; //tem vaga -> consome vaga
     estacao->passageiros--;
-    if(estacao->vagas == 0 || estacao->passageiros == 0)
-        pthread_cond_signal(&(estacao->aviso));  //segura aviso caso tenha começado antes
+    estacao->passageiros_embarcados++;
+    
     pthread_mutex_unlock(&(estacao->mutex));
 
     return NULL;    
@@ -48,9 +51,9 @@ void estacao_espera_pelo_vagao(struct estacao * estacao) {
 void estacao_embarque(struct estacao * estacao) {
 
     pthread_mutex_lock(&(estacao->mutex));
-    while(estacao->vagas != 0 &&)
-        pthread_cond_wait(&(estacao->aviso),&(estacao->mutex));
-    pthread_cond_signal(&(estacao->vagao));  //avisa vagao q pode sair
+    estacao->passageiros_embarcados--;
+    if(estacao->passageiros_embarcados == 0 || estacao->passageiros == 0)
+        pthread_cond_signal(&(estacao->vagao));  //avisa vagao q pode sair
     pthread_mutex_unlock(&(estacao->mutex));
 
     return NULL;
