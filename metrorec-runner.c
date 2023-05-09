@@ -2,15 +2,45 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <stdatomic.h>
 
 #include "metrorec.c"
 
-void *passageiros_thread(void *arg)
-{
-	struct estacao *estacao = (struct estacao *) arg;
-	estacao_espera_pelo_vagao(estacao);
-	return NULL;
-}
+#define TEST 0
+
+#if TEST == 0
+
+        atomic_int counter = ATOMIC_VAR_INIT(0);
+
+        void *passageiros_thread(void *arg)
+        {
+                struct estacao *estacao = (struct estacao *) arg;
+                estacao_espera_pelo_vagao(estacao);
+
+                atomic_fetch_add(&counter, 1);
+                
+                return NULL;
+
+        }
+
+#endif
+
+#if TEST == 1
+
+
+        atomic_int counter = ATOMIC_VAR_INIT(0);
+
+        void *passageiros_thread(void *arg)
+        {
+                struct estacao *estacao = (struct estacao *) arg;
+                estacao_espera_pelo_vagao(estacao);
+	        estacao_embarque(estacao);
+
+                return NULL;
+
+        }
+
+#endif
 
 struct vagao_args {
 	struct estacao *estacao;
@@ -21,11 +51,13 @@ void *vagao_thread(void *args)
 {
 	struct vagao_args *vargs = (struct vagao_args *) args;
 	estacao_preecher_vagao(vargs->estacao, vargs->assentos_livres);
-	return NULL;
+        return NULL;
 }
 
 int main(void)
 {
+
+
 
         //
         // create one station
@@ -39,6 +71,7 @@ int main(void)
         // each passenger is a thread
         //
         int qtd_passageiros = 6;
+        int qtd_passageiros_inicial = qtd_passageiros;
 
         pthread_t passageiros[qtd_passageiros];
         int t[qtd_passageiros];
@@ -63,7 +96,9 @@ int main(void)
                 // this car is associated to a thread
                 //
                 struct vagao_args vagao_struct;
-                int qtd_assentos = qtd_passageiros / (2+i);
+                int qtd_assentos = qtd_passageiros_inicial / (2+i);
+                if (qtd_assentos == 0)
+                        qtd_assentos++;
 
                 vagao_struct.estacao = &station;
                 vagao_struct.assentos_livres = qtd_assentos; 
@@ -81,6 +116,7 @@ int main(void)
                 // define the number of passenger to reap
                 // minimum between number of free seats and passengers at station still waiting to board
                 //
+#if TEST == 0
                 int passageiros_reap;
                 if(qtd_assentos < qtd_passageiros){
                         passageiros_reap = qtd_assentos;
@@ -88,17 +124,28 @@ int main(void)
                 }else{
                         passageiros_reap = qtd_passageiros;
                 }
+                int passageiro_thread_terminada = 0;
 
                 //
                 // for each thread associated to a passenger that finished
                 // call estacao_embarque function to let the car know that the passenger is on board
                 // ATTENTION: the car can not have more passengers than the number of free seats
                 //
+                int k=0;
+                while(passageiro_thread_terminada < passageiros_reap){
+                        passageiro_thread_terminada = atomic_load(&counter);
+                        k++;
+                }
+                printf(" %d passageiros reap\n", passageiros_reap);
+                printf(" %d passageiros terminaram\n", passageiro_thread_terminada);
+
                 for(int j = 0; j<passageiros_reap; j++){
                         estacao_embarque(&station);
                 }
-
+                atomic_store(&counter, 0);
+#endif
                 pthread_join(vagao, NULL);
+
         
         }
 

@@ -23,17 +23,15 @@ void estacao_init(struct estacao *estacao) {
 
 void estacao_preecher_vagao(struct estacao * estacao, int assentos) {
     
-    //printf("vagao chegou\n");
+    printf("vagao chegou\n");
 
     pthread_mutex_lock(&(estacao->mutex));
     estacao->vagas = assentos;
-    //pthread_cond_signal(&(estacao->aviso_cond));
     pthread_cond_broadcast(&(estacao->passageiros_cond)); //avisa a todos passageiros q vagao chegou E permite embarque
     pthread_cond_wait(&(estacao->vagao_cond),&(estacao->mutex)); //espera entrarem
     pthread_mutex_unlock(&(estacao->mutex));
 
-    //printf("vagao SAIU\n");
-
+    printf("vagao SAIU\n");
 
 }
 
@@ -41,7 +39,7 @@ void estacao_espera_pelo_vagao(struct estacao * estacao) {
 
     pthread_mutex_lock(&(estacao->mutex));
     
-    //printf("passageiro esperando\n");
+    printf("passageiro esperando\n");
 
     estacao->passageiros++;
     while(estacao->vagas == 0){        //sem vagas -> block
@@ -57,22 +55,18 @@ void estacao_espera_pelo_vagao(struct estacao * estacao) {
     
     pthread_mutex_unlock(&(estacao->mutex));
 
-    //printf("passageiro foi ao EMBARQUE\n");
-
+    printf("passageiro foi ao EMBARQUE\n");
 
 }
 
 void estacao_embarque(struct estacao * estacao) {
 
     pthread_mutex_lock(&(estacao->mutex));
-    //pthread_cond_wait(&(estacao->aviso_cond), &(estacao->mutex)); // TRAVA AQUI no segundo embarque
     estacao->passageiros_embarcados--;
     if(estacao->passageiros_embarcados == 0 || estacao->passageiros == 0)
         pthread_cond_signal(&(estacao->vagao_cond));  //avisa vagao q pode sair
     pthread_mutex_unlock(&(estacao->mutex));
 
-    //printf("EMBRAQUE\n");
-
-
+    printf("EMBRAQUE\n");
 
 }
