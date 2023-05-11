@@ -4,7 +4,7 @@
 #include <pthread.h>
 #include <stdatomic.h>
 
-#include "metrorec.c"
+#include "metrorec01.c"
 
 #define TEST 0
 
@@ -50,7 +50,7 @@ struct vagao_args {
 void *vagao_thread(void *args)
 {
 	struct vagao_args *vargs = (struct vagao_args *) args;
-	estacao_preecher_vagao(vargs->estacao, vargs->assentos_livres);
+	estacao_preencher_vagao(vargs->estacao, vargs->assentos_livres);
         return NULL;
 }
 
@@ -70,7 +70,11 @@ int main(void)
         // create a number of passengers
         // each passenger is a thread
         //
-        int qtd_passageiros = 6;
+        int qtd_passageiros;
+
+        printf("Defina a quantidade inicial de passageiros: ");
+        scanf(" %d", &qtd_passageiros);
+        
         int qtd_passageiros_inicial = qtd_passageiros;
 
         pthread_t passageiros[qtd_passageiros];
@@ -97,7 +101,7 @@ int main(void)
                 //
                 struct vagao_args vagao_struct;
                 int qtd_assentos = qtd_passageiros_inicial / (2+i);
-                if (qtd_assentos == 0)
+                if ( qtd_assentos == 0 )
                         qtd_assentos++;
 
                 vagao_struct.estacao = &station;
@@ -135,6 +139,9 @@ int main(void)
                 while(passageiro_thread_terminada < passageiros_reap){
                         passageiro_thread_terminada = atomic_load(&counter);
                         k++;
+
+                        // nao ha garantia q apenas os passageiros que vao embarcar sairam de espera
+                        // todos podem sair de espera descontroladamente
                 }
                 printf(" %d passageiros reap\n", passageiros_reap);
                 printf(" %d passageiros terminaram\n", passageiro_thread_terminada);

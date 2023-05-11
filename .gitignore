@@ -3,3 +3,5 @@ mainTest.c
 mainTest.o
 a.out
 metrorec
+metrorec01.o
+metrorec02.o

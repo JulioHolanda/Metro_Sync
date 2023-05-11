@@ -21,7 +21,7 @@ void estacao_init(struct estacao *estacao) {
     pthread_cond_init(&(estacao->aviso_cond), NULL);
 }
 
-void estacao_preecher_vagao(struct estacao * estacao, int assentos) {
+void estacao_preencher_vagao(struct estacao * estacao, int assentos) {
     
     printf("vagao chegou\n");
 
