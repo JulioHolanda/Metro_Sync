@@ -1,3 +1,6 @@
+// versao inicial. estacao_embarque(struct estacao * estacao) controla qtd de passageiros
+// no vagao e o libera
+
 #include <pthread.h>
 
 struct estacao {
@@ -25,11 +28,13 @@ void estacao_preencher_vagao(struct estacao * estacao, int assentos) {
     
     printf("vagao chegou\n");
 
-    pthread_mutex_lock(&(estacao->mutex));
-    estacao->vagas = assentos;
-    pthread_cond_broadcast(&(estacao->passageiros_cond)); //avisa a todos passageiros q vagao chegou E permite embarque
-    pthread_cond_wait(&(estacao->vagao_cond),&(estacao->mutex)); //espera entrarem
-    pthread_mutex_unlock(&(estacao->mutex));
+    if (assentos > 0){
+        pthread_mutex_lock(&(estacao->mutex));
+        estacao->vagas = assentos;
+        pthread_cond_broadcast(&(estacao->passageiros_cond)); //avisa a todos passageiros q vagao chegou E permite embarque
+        pthread_cond_wait(&(estacao->vagao_cond),&(estacao->mutex)); //espera entrarem
+        pthread_mutex_unlock(&(estacao->mutex));
+    }
 
     printf("vagao SAIU\n");
 
