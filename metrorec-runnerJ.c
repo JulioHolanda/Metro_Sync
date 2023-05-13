@@ -6,7 +6,7 @@
 
 #include "metrorec.c"
 
-#define TEST 1
+#define TEST 0
 
 #if TEST == 0
 
@@ -102,7 +102,7 @@ int main(void)
                 //
                 struct vagao_args vagao_struct;
                 int qtd_assentos = qtd_passageiros_inicial / (2+i);
-                if ( qtd_assentos == 0 )
+                if ( i > 0 )
                         qtd_assentos++;
 
                 vagao_struct.estacao = &station;
@@ -128,6 +128,7 @@ int main(void)
                         qtd_passageiros -= qtd_assentos;
                 }else{
                         passageiros_reap = qtd_passageiros;
+                        qtd_passageiros -= qtd_passageiros;
                 }
                 int passageiro_thread_terminada = 0;
 

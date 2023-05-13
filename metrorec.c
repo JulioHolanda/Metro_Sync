@@ -36,7 +36,7 @@ void estacao_preencher_vagao(struct estacao * estacao, int assentos) {
         pthread_cond_broadcast(&(estacao->passageiros_cond));
 
         while(assentos > 0 && estacao->passageiros > 0){
-            pthread_cond_broadcast(&(estacao->embarque_cond)); // Isso pode dar merda
+            pthread_cond_broadcast(&(estacao->embarque_cond)); // Isso pode dar bronca
             printf(" %d\n", assentos);
             pthread_cond_wait(&(estacao->vagao_cond), &(estacao->mutex));
             assentos--;
@@ -44,9 +44,9 @@ void estacao_preencher_vagao(struct estacao * estacao, int assentos) {
         }
     }    
 
+    printf("2- vagao SAIU\n");
     pthread_mutex_unlock(&(estacao->mutex));
 
-    printf("2- vagao SAIU\n");
 
 }
 
@@ -70,8 +70,9 @@ void estacao_espera_pelo_vagao(struct estacao * estacao) {
 
 void estacao_embarque(struct estacao * estacao) {
 
+    printf(" %d passageios na estacao\n", estacao->passageiros);
     pthread_mutex_lock(&estacao->mutex);
-   
+    
     while (estacao->embarque_em_andamento == 1){
         pthread_cond_wait(&(estacao->embarque_cond), &(estacao->mutex));
     }
@@ -82,9 +83,9 @@ void estacao_embarque(struct estacao * estacao) {
         estacao->passageiros--;
         estacao->saiu_para_embarque--;
         
-    printf("2- EMBRAQUE\n");
     }
-    pthread_mutex_unlock(&estacao->mutex);
 
+    printf("2- EMBRAQUE\n");
+    pthread_mutex_unlock(&estacao->mutex);
 
 }

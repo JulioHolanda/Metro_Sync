@@ -82,6 +82,6 @@ int run_test(int numPassageiros, int numAssentos)
 }
 
 int main(void){
-  run_test(15, 4);
+  run_test(50, 15);
 
 }
