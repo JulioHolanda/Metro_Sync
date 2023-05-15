@@ -10,23 +10,21 @@ struct estacao {
     pthread_mutex_t mutex;
     pthread_cond_t passageiros_cond;
     pthread_cond_t vagao_cond;
-    pthread_cond_t aviso_cond;
 };
 
 void estacao_init(struct estacao *estacao) {
-    
+    printf("--- METROREC 01 ---- \n");
     estacao->vagas = 0;
     estacao->passageiros = 0;
     estacao->passageiros_embarcados = 0;
     pthread_mutex_init(&(estacao->mutex), NULL);
     pthread_cond_init(&(estacao->passageiros_cond), NULL);   
     pthread_cond_init(&(estacao->vagao_cond), NULL);
-    pthread_cond_init(&(estacao->aviso_cond), NULL);
 }
 
 void estacao_preencher_vagao(struct estacao * estacao, int assentos) {
     
-    printf("vagao chegou\n");
+    //printf("vagao chegou\n");
 
     if (assentos > 0){
         pthread_mutex_lock(&(estacao->mutex));
@@ -44,7 +42,7 @@ void estacao_espera_pelo_vagao(struct estacao * estacao) {
 
     pthread_mutex_lock(&(estacao->mutex));
     
-    printf("passageiro esperando\n");
+    //printf("passageiro esperando\n");
 
     estacao->passageiros++;
     while(estacao->vagas == 0){        //sem vagas -> block
@@ -53,14 +51,10 @@ void estacao_espera_pelo_vagao(struct estacao * estacao) {
     estacao->vagas--; //tem vaga -> consome vaga
     estacao->passageiros--;
     estacao->passageiros_embarcados++;
-
-    if (estacao->vagas == 0 || estacao->passageiros == 0){
-        pthread_cond_signal(&(estacao->aviso_cond));
-    }
     
     pthread_mutex_unlock(&(estacao->mutex));
 
-    printf("passageiro foi ao EMBARQUE\n");
+    //printf("passageiro foi ao EMBARQUE\n");
 
 }
 
@@ -72,6 +66,6 @@ void estacao_embarque(struct estacao * estacao) {
         pthread_cond_signal(&(estacao->vagao_cond));  //avisa vagao q pode sair
     pthread_mutex_unlock(&(estacao->mutex));
 
-    printf("EMBRAQUE\n");
+    //printf("EMBRAQUE\n");
 
 }
